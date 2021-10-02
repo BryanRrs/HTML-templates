@@ -48,6 +48,11 @@ class Parser
                 end
             end
         end
+        if current_command == 'else'
+            temp_parser = Parser.new(command_stack[1...])
+            block_nodes = temp_parser.parse
+            nodeList.extend_nodelist(BlockNode.new(command_stack[0], block_nodes))
+        end
         return nodeList
     end
 
@@ -85,6 +90,7 @@ end
 
 class BlockNode
 
+    attr_accessor :val
     def initialize(token, nodeList)
         @val = token.contents
         @nodeList = nodeList
@@ -94,6 +100,8 @@ class BlockNode
             @tag = ForTag.new(blockTag[1...], @nodeList)
         when 'if'
             @tag = IfTag.new(blockTag[1...], @nodeList)
+        when 'else'
+            @tag = ElseTag.new(@nodeList)
         end
     end
 
@@ -104,8 +112,10 @@ end
 
 class NodeList
 
-    def initialize
-        @nodelist = []
+    attr_accessor :nodelist
+
+    def initialize(nodes = [])
+        @nodelist = nodes
     end
 
     def renderPage(context)
@@ -116,5 +126,13 @@ class NodeList
 
     def extend_nodelist(node)
         @nodelist.push(node)
+    end
+
+    def remove_last()
+        @nodelist.pop
+    end
+
+    def get_subindex(from, to)
+        @nodelist[from...to]
     end
 end

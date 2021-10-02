@@ -17,11 +17,9 @@ $token_syntax = {
 class Token
     attr_accessor :token_type
     attr_accessor :contents
-    def initialize(token_type, contents, position, lineno)
+    def initialize(token_type, contents)
         @token_type = token_type
         @contents = contents
-        @position = position
-        @lineno = lineno
     end
 
     def split_contents
@@ -44,7 +42,7 @@ class Tokenizer
         lineno = 1
         for s in @template.split(@tag_re)
             if not s.empty?
-                result.append(createToken(s, nil, lineno, in_tag))
+                result.append(createToken(s, in_tag))
                 lineno += s.scan(/\n/).size
             end
             in_tag = !in_tag
@@ -52,18 +50,18 @@ class Tokenizer
         result
     end
     
-    def createToken(str, position, lineno, in_tag)
+    def createToken(str, in_tag)
         if in_tag
             str_start = str[0...2]
             content = str[2...-2].strip
             case str_start
             when $token_syntax[:BLOCK_TAG_START]
-                return Token.new($token_enum[:BLOCK], content, position, lineno)
+                return Token.new($token_enum[:BLOCK], content)
             when $token_syntax[:VARIABLE_TAG_START]
-                return Token.new($token_enum[:VAR], content, position, lineno)
+                return Token.new($token_enum[:VAR], content)
             end
         end
-        Token.new($token_enum[:TEXT], str, position, lineno)
+        Token.new($token_enum[:TEXT], str)
     end
 
 end

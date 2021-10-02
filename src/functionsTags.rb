@@ -31,10 +31,11 @@ class IfTag
     def initialize(condition, nodes)
         @condition = condition
         @nodes = nodes
+        @elseBlock = checkElse()
     end
 
     def render(context)
-        r = false 
+        r = false
         case @condition.size
         when 1
             v = var_resolver(context, @condition[0])
@@ -50,19 +51,32 @@ class IfTag
         end
         if r
             @nodes.renderPage(context)
+        elsif not @elseBlock.nil?
+            @elseBlock.render(context)
+        else
+            return nil
         end
         return nil
+    end
+
+    def checkElse
+        if @nodes.nodelist[-1].instance_of? BlockNode and @nodes.nodelist[-1].val == 'else'
+           return @nodes.remove_last
+        else
+            return nil
+        end
     end
 
     def var_resolver(context, var)
         begin
             val = Integer(var)
         rescue ArgumentError
-            pp var
             if var.downcase == 'false'
                 val = false
             elsif var.downcase == 'true'
                 val = true
+            elsif var[0] == '/'
+                val = var[1...]
             else
                 splited = var.split('.')
                 val = context
@@ -93,4 +107,15 @@ class IfTag
             return v
         end
     end
+end
+
+class ElseTag
+    def initialize(nodes)
+        @nodes = nodes
+    end
+
+    def render(context)
+        @nodes.renderPage(context)
+    end
+
 end
