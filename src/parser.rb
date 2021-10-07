@@ -1,5 +1,6 @@
 require_relative 'tokenizer'
 require_relative 'functionsTags'
+require 'pp'
 
 class Parser
     def initialize(tokens)
@@ -65,6 +66,11 @@ class TextNode
 
     def initialize(token)
         @val = token.contents
+        # This is to remove the whitespace generated 
+        # where the command blocks {% ... %} would appear
+        if @val[-4...] == '    '
+            @val = @val.rstrip
+        end
     end
 
     def render(context)
