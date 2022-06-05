@@ -1,4 +1,4 @@
-# html-template-generator
+# HTML-templates
 Dynamically generate html files from a template and context
 Based in [Django's template system](https://docs.djangoproject.com/en/3.2/topics/templates/)
 
